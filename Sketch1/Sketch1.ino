@@ -26,7 +26,6 @@ void setup()
 	// Connect to GSM network
 	boolean dc = true;
 
-
 	// After starting the modem with GSM.begin()
 	
 	//attach the shield to the GPRS network with the APN, login and password 

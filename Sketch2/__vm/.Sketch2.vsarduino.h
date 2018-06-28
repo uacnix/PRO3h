@@ -78,6 +78,5 @@ typedef void *__builtin_va_list;
 #define pgm_read_ptr(address_short)   short()
 
 #include "Sketch2.ino"
-#include "SketchCode.ino"
 #endif
 #endif

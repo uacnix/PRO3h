@@ -71,18 +71,6 @@ void setup() {
 		}
 	}
 
-	while (1) {
-		//Check if the camera module type is OV5642
-		myCAM.rdSensorReg16_8(OV5642_CHIPID_HIGH, &vid);
-		myCAM.rdSensorReg16_8(OV5642_CHIPID_LOW, &pid);
-		if ((vid != 0x56) || (pid != 0x42)) {
-			Serial.println(F("Can't find OV5642 module!"));
-			delay(1000); continue;
-		}
-		else {
-			Serial.println(F("OV5642 detected.")); break;
-		}
-	}
 	//Initialize SD Card
 	while (!SD.begin(SD_CS))
 	{

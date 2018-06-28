@@ -89,7 +89,7 @@ void loop() {
 	// put your main code here, to run repeatedly:
 	myCAM.flush_fifo();
 	myCAM.clear_fifo_flag();
-	myCAM.OV5642_set_JPEG_size(OV5642_320x240); delay(1000);
+	myCAM.OV5642_set_JPEG_size(OV5642_1600x1200); delay(1000);
 
 	//Start capture
 	myCAM.start_capture();

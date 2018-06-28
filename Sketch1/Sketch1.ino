@@ -53,7 +53,7 @@ void loop() {
 void takePic() {
 	myCAM.flush_fifo();
 	myCAM.clear_fifo_flag();
-	myCAM.OV5642_set_JPEG_size(OV5642_320x240); delay(1000);
+	myCAM.OV5642_set_JPEG_size(OV5642_1600x1200); delay(1000);
 	//Start capture
 	myCAM.start_capture();
 	while (!myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK));
@@ -91,7 +91,7 @@ uint8_t read_fifo_burst(ArduCAM myCAM)
 	Serial.println(F("GSM_OK"));
 	client.connect(server, 80);
 	uint32_t len = length + 139;
-
+	Serial.print(len);
 	if (client.connected())
 	{
 		client.println(F("POST /pro/u.php HTTP/1.1"));
@@ -127,6 +127,7 @@ uint8_t read_fifo_burst(ArduCAM myCAM)
 					myCAM.CS_LOW();
 					myCAM.set_fifo_burst();
 					i = 0;
+					break;
 				}
 				if (is_header == true)
 				{

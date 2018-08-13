@@ -1,48 +1,89 @@
-﻿
+﻿#include <ov5642_regs.h>
 #include <SPI.h>
 #include <GSM.h>
 #include <Wire.h>
 #include <ArduCAM.h>
 #include "memorysaver.h"
 
-//	GSM network basics
+//  GSM network basics
 #define SIMPIN ""
 GSMClient client;
 GPRS gprs;
 GSM gsmAccess;
 
-//	GPRS network basics
+//  GPRS network basics
 #define GPRS_A "internet"
 
-//	network basics
+//  network basics
 char server[] = "mail.vc0.pl";
 int i = 0;
 
-//	CAM settings
+//  CAM settings
 #define   FRAMES_NUM    0x00
 const int CS = 4;
+const int CLED = 8;
 bool is_header = false;
 ArduCAM myCAM(OV5642, CS);
 uint8_t read_fifo_burst(ArduCAM myCAM);
-
+/*
 void setup()
 {
-	Serial.begin(115200);
+Serial.begin(115200);
+Serial.println(F("INIT"));
+
+pinMode(CS, OUTPUT);
+digitalWrite(CS, HIGH);
+SPI.begin();
+myCAM.write_reg(0x07, 0x80);
+delay(100);
+myCAM.write_reg(0x07, 0x00);
+delay(100);
+myCAM.set_format(JPEG);
+myCAM.InitCAM();
+myCAM.set_bit(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);
+myCAM.OV5642_set_JPEG_size(OV5642_1024x768); delay(2000);
+myCAM.clear_fifo_flag();
+myCAM.write_reg(ARDUCHIP_FRAMES, FRAMES_NUM);
+
+// call the camera to take the shot and write it onto SD card.
+*/
+
+void setup() {
+	// put your setup code here, to run once:
+	uint8_t vid, pid;
+	uint8_t temp;
+	Wire.begin();
+	Serial.begin(57600);
 	Serial.println(F("INIT"));
+	// set the CS as an output:
 	pinMode(CS, OUTPUT);
+	pinMode(CLED, OUTPUT);
+	digitalWrite(CS, HIGH);
+	// initialize SPI:
 	SPI.begin();
+	//Reset the CPLD
+	myCAM.write_reg(0x07, 0x80);
+	delay(100);
+	myCAM.write_reg(0x07, 0x00);
+	delay(100);
+	//Change to JPEG capture mode and initialize the OV5642 module
 	myCAM.set_format(JPEG);
 	myCAM.InitCAM();
-	myCAM.set_bit(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);
+	myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
+	myCAM.OV5642_set_JPEG_size(OV5642_1024x768);
+	delay(1000);
 	myCAM.clear_fifo_flag();
-	myCAM.write_reg(ARDUCHIP_FRAMES, FRAMES_NUM);
+	myCAM.write_reg(ARDUCHIP_FRAMES, 0x00);
+
 	Serial.println(F("takePic"));
-	// call the camera to take the shot and write it onto SD card.
 	takePic();
-
-	// GPRS connection starts now.
+	digitalWrite(CLED, HIGH);
+	read_fifo_burst(myCAM);
+	digitalWrite(CLED, LOW);
+	//Clear the capture done flag
+	myCAM.clear_fifo_flag();
+	delay(5000);
 	client.stop();
-
 	Serial.println(F("HTTP200"));
 }
 
@@ -53,14 +94,9 @@ void loop() {
 void takePic() {
 	myCAM.flush_fifo();
 	myCAM.clear_fifo_flag();
-	myCAM.OV5642_set_JPEG_size(OV5642_1600x1200); delay(1000);
 	//Start capture
 	myCAM.start_capture();
 	while (!myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK));
-	read_fifo_burst(myCAM);
-	//Clear the capture done flag
-	myCAM.clear_fifo_flag();
-	delay(5000);
 }
 
 uint8_t read_fifo_burst(ArduCAM myCAM)
@@ -161,7 +197,7 @@ uint8_t read_fifo_burst(ArduCAM myCAM)
 		}
 		else
 		{
-			Serial.println(F("SD404"));
+			Serial.println(F("F404"));
 		}
 	}
 	else

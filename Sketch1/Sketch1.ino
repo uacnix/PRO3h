@@ -51,6 +51,7 @@ void setup() {
 	delay(100);
 
 	myCAM.set_format(JPEG);
+	myCAM.clear_bit(ARDUCHIP_GPIO, GPIO_PWDN_MASK);
 	myCAM.InitCAM();
 	myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
 	myCAM.clear_bit(ARDUCHIP_GPIO, GPIO_PWDN_MASK);
@@ -72,6 +73,7 @@ void setup() {
 	myCAM.set_bit(ARDUCHIP_GPIO, GPIO_PWDN_MASK);
 	client.stop();
 	Serial.println(F("HTTP200"));
+	gsmAccess.shutdown();
 	digitalWrite(CLED, LOW);
 }
 
@@ -85,6 +87,7 @@ void takePic() {
 	//Start capture
 	myCAM.start_capture();
 	while (!myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK));
+	myCAM.set_bit(ARDUCHIP_GPIO, GPIO_PWDN_MASK);
 }
 
 uint8_t read_fifo_burst(ArduCAM myCAM)
@@ -98,7 +101,8 @@ uint8_t read_fifo_burst(ArduCAM myCAM)
 	myCAM.CS_LOW();
 	myCAM.set_fifo_burst();//Set fifo burst mode
 	i = 0;
-	Serial.print(F("GSM"));
+	myCAM.set_bit(ARDUCHIP_GPIO, GPIO_PWDN_MASK);
+	Serial.print(F("GSM(CAM DOWN)"));
 		boolean dc = true;
 		while (dc)
 		{
@@ -114,7 +118,7 @@ uint8_t read_fifo_burst(ArduCAM myCAM)
 		}
 	Serial.print(F("-OK\n"));
 	client.connect(server, 80);
-	len = length+120; //139 //121 //117
+	len = length+139; //139 //121 //117
 	Serial.print(len);
 
 	if (client.connected())
